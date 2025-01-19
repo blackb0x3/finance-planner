@@ -3,6 +3,6 @@ import { TransactionItem } from "../common/transactionItem";
 export interface Budget {
     startDate: Date;
     endDate: Date;
-    incoming: TransactionItem;
+    incoming: TransactionItem[];
     expenditures: TransactionItem[];
 }
