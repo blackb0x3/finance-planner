@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <!-- Definitions for Gradients and Shadows -->
+  <defs>
+    <linearGradient id="coin-gradient" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f9d976" />
+      <stop offset="100%" stop-color="#f4b400" />
+    </linearGradient>
+    <radialGradient id="highlight-gradient" cx="0.5" cy="0.3" r="0.8">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="transparent" />
+    </radialGradient>
+    <radialGradient id="shadow-gradient" cx="0.5" cy="0.7" r="0.8">
+      <stop offset="0%" stop-color="black" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="transparent" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="#5fa5e7" stroke="#f4c542" stroke-width="5" />
+
+  <!-- Stack of Coins -->
+  <!-- Coin 4 -->
+  <g>
+    <ellipse cx="100" cy="85" rx="50" ry="10" fill="url(#coin-gradient)" />
+    <ellipse cx="100" cy="85" rx="50" ry="10" fill="url(#highlight-gradient)" />
+    <ellipse cx="100" cy="90" rx="50" ry="10" fill="url(#shadow-gradient)" />
+  </g>
+  <!-- Coin 3 -->
+  <g>
+    <ellipse cx="100" cy="100" rx="50" ry="10" fill="url(#coin-gradient)" />
+    <ellipse cx="100" cy="100" rx="50" ry="10" fill="url(#highlight-gradient)" />
+    <ellipse cx="100" cy="105" rx="50" ry="10" fill="url(#shadow-gradient)" />
+  </g>
+  <!-- Coin 2 -->
+  <g>
+    <ellipse cx="100" cy="115" rx="50" ry="10" fill="url(#coin-gradient)" />
+    <ellipse cx="100" cy="115" rx="50" ry="10" fill="url(#highlight-gradient)" />
+    <ellipse cx="100" cy="120" rx="50" ry="10" fill="url(#shadow-gradient)" />
+  </g>
+  <!-- Coin 1 -->
+  <g>
+    <ellipse cx="100" cy="130" rx="50" ry="10" fill="url(#coin-gradient)" />
+    <ellipse cx="100" cy="130" rx="50" ry="10" fill="url(#highlight-gradient)" />
+    <ellipse cx="100" cy="135" rx="50" ry="10" fill="url(#shadow-gradient)" />
+  </g>
+
+  <!-- Checkmark -->
+  <path d="M70 110 L90 130 L140 80" fill="none" stroke="#4caf50" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
