@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { invoke } from '@tauri-apps/api/core';
 
-const SpendingPlanEditor = ({ plan, onClose }) => {
-  const [spendingPlan, setSpendingPlan] = useState(plan);
+const SpendingPlansEditor = ({ plan, onClose }) => {
+  const [spendingPlan, closePlan] = useState(plan);
 
   const handleSavePlan = async () => {
     const { save } = window.__TAURI__.dialog;
@@ -24,9 +23,9 @@ const SpendingPlanEditor = ({ plan, onClose }) => {
       <h1>Editing: {spendingPlan.name}</h1>
       {/* Add income and expenditure management logic here */}
       <button onClick={handleSavePlan}>Save Plan</button>
-      <button onClick={onClose}>Close Plan</button>
+      <button onClick={closePlan}>Close Plan</button>
     </div>
   );
 };
 
-export default SpendingPlanEditor;
+export default SpendingPlansEditor;
