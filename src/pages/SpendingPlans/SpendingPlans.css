@@ -48,6 +48,7 @@
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--border);
+  position: relative;
 }
 
 .spending-plan-card-header {
@@ -114,6 +115,13 @@
   color: var(--text-primary);
 }
 
+.spending-plan-card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
 .spending-plan-button {
   padding: 0.75rem 1.5rem;
   border-radius: 0.375rem;
@@ -122,6 +130,7 @@
   transition: all 0.2s;
   display: inline-block;
   text-align: center;
+  cursor: pointer;
 }
 
 .spending-plan-button-primary {
@@ -142,6 +151,22 @@
 
 .spending-plan-button-secondary:hover {
   background-color: var(--background);
+}
+
+.spending-plan-button-delete {
+  background-color: var(--error-light);
+  color: var(--error);
+  border: 1px solid var(--error);
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.spending-plan-button-delete:hover {
+  background-color: var(--error);
+  color: white;
 }
 
 .loading-state,
@@ -165,13 +190,46 @@
   margin-bottom: 2rem;
 }
 
-.error-message {
-  background-color: #fee2e2;
-  color: #dc2626;
-  padding: 1rem;
-  border-radius: 0.375rem;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
+.delete-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.delete-dialog {
+  background-color: var(--surface);
+  border-radius: 0.5rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+}
+
+.delete-dialog h3 {
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.delete-dialog p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.delete-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
 }
 
 /* Disabled state styles */
