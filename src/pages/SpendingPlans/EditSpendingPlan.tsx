@@ -4,6 +4,7 @@ import { spendingPlanService } from '../../services/spendingPlanService';
 import { SpendingPlan } from '../../models/SpendingPlan/spendingPlan';
 import { validateSpendingPlan, ValidationError } from '../../utils/validation';
 import './EditSpendingPlan.css';
+import { formatDate } from '../../utils/formatDate.helper';
 
 const EditSpendingPlan = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +14,10 @@ const EditSpendingPlan = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [plan, setPlan] = useState<SpendingPlan | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+
+  const formatFrequency = (frequency: string): string => {
+    return frequency.charAt(0).toUpperCase() + frequency.slice(1).toLowerCase();
+  };
 
   useEffect(() => {
     const loadSpendingPlan = async () => {
@@ -70,7 +75,7 @@ const EditSpendingPlan = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (!plan) return;
 
     const { name, value } = e.target;
@@ -168,54 +173,22 @@ const EditSpendingPlan = () => {
           )}
         </div>
 
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="currency" className="form-label">Currency</label>
-            <select
-              id="currency"
-              name="currency"
-              value={plan.currency}
-              onChange={handleChange}
-              disabled={isSaving}
-              className={`form-select ${getFieldError('currency') ? 'error' : ''}`}
-            >
-              <option value="GBP">GBP (£)</option>
-              <option value="EUR">EUR (€)</option>
-              <option value="USD">USD ($)</option>
-            </select>
-            {getFieldError('currency') && (
-              <div className="form-error">{getFieldError('currency')}</div>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="incomeAndAllocationFrequency" className="form-label">Frequency</label>
-            <select
-              id="incomeAndAllocationFrequency"
-              name="incomeAndAllocationFrequency"
-              value={plan.incomeAndAllocationFrequency}
-              onChange={handleChange}
-              disabled={isSaving}
-              className={`form-select ${getFieldError('incomeAndAllocationFrequency') ? 'error' : ''}`}
-            >
-              <option value="monthly">Monthly</option>
-              <option value="weekly">Weekly</option>
-              <option value="daily">Daily</option>
-            </select>
-            {getFieldError('incomeAndAllocationFrequency') && (
-              <div className="form-error">{getFieldError('incomeAndAllocationFrequency')}</div>
-            )}
-          </div>
-        </div>
-
         <div className="form-meta">
-          <div className="meta-item">
-            <label>Created</label>
-            <span>{new Date(plan.created).toLocaleDateString()}</span>
+          <div className="meta-chip">
+            <span className="meta-chip-label">Currency</span>
+            <span className="meta-chip-value">{plan.currency}</span>
           </div>
-          <div className="meta-item">
-            <label>Last Updated</label>
-            <span>{new Date(plan.lastUpdated).toLocaleDateString()}</span>
+          <div className="meta-chip">
+            <span className="meta-chip-label">Frequency</span>
+            <span className="meta-chip-value">{formatFrequency(plan.incomeAndAllocationFrequency)}</span>
+          </div>
+          <div className="meta-chip">
+            <span className="meta-chip-label">Created</span>
+            <span className="meta-chip-value">{formatDate(plan.created)}</span>
+          </div>
+          <div className="meta-chip">
+            <span className="meta-chip-label">Last Updated</span>
+            <span className="meta-chip-value">{formatDate(plan.lastUpdated)}</span>
           </div>
         </div>
 
