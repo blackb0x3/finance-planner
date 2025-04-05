@@ -1,0 +1,31 @@
+.navigation {
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navigation-brand a {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.navigation-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.navigation-links a {
+  color: #4b5563;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.navigation-links a:hover {
+  color: #2563eb;
+} 
