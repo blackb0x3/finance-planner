@@ -14,6 +14,14 @@ const EditSpendingPlan = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [plan, setPlan] = useState<SpendingPlan | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [newIncome, setNewIncome] = useState({
+    name: '',
+    amount: ''
+  });
+  const [incomeErrors, setIncomeErrors] = useState({
+    name: '',
+    amount: ''
+  });
 
   const formatFrequency = (frequency: string): string => {
     return frequency.charAt(0).toUpperCase() + frequency.slice(1).toLowerCase();
@@ -86,6 +94,79 @@ const EditSpendingPlan = () => {
 
     // Clear validation error for the field being changed
     setValidationErrors(prev => prev.filter(error => error.field !== name));
+  };
+
+  const handleIncomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewIncome(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const validateIncome = () => {
+    const errors = {
+      name: '',
+      amount: ''
+    };
+
+    if (!newIncome.name.trim()) {
+      errors.name = 'Name is required';
+    }
+
+    const amount = parseFloat(newIncome.amount);
+    if (isNaN(amount) || amount <= 0) {
+      errors.amount = 'Amount must be greater than 0';
+    }
+
+    setIncomeErrors(errors);
+    return !errors.name && !errors.amount;
+  };
+
+  const handleAddIncome = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!plan) return;
+
+    if (!validateIncome()) {
+      return;
+    }
+
+    const updatedPlan = {
+      ...plan,
+      incomes: [
+        ...plan.incomes,
+        {
+          id: Date.now().toString(),
+          name: newIncome.name,
+          amount: parseFloat(newIncome.amount),
+          created: new Date(),
+          lastUpdated: new Date()
+        }
+      ],
+      lastUpdated: new Date()
+    };
+
+    setPlan(updatedPlan);
+    setNewIncome({
+      name: '',
+      amount: ''
+    });
+    setIncomeErrors({
+      name: '',
+      amount: ''
+    });
+  };
+
+  const handleRemoveIncome = (incomeId: string) => {
+    if (!plan) return;
+
+    const updatedPlan = {
+      ...plan,
+      incomes: plan.incomes.filter(income => income.id !== incomeId),
+      lastUpdated: new Date()
+    };
+
+    setPlan(updatedPlan);
   };
 
   const getFieldError = (fieldName: string): string | undefined => {
@@ -189,6 +270,82 @@ const EditSpendingPlan = () => {
           <div className="meta-chip">
             <span className="meta-chip-label">Last Updated</span>
             <span className="meta-chip-value">{formatDate(plan.lastUpdated)}</span>
+          </div>
+        </div>
+
+        <div className="form-section">
+          <h2 className="form-section-title">Incomes</h2>
+          
+          <div className="income-list">
+            {plan.incomes.map(income => (
+              <div key={income.id} className="income-item">
+                <div className="income-item-details">
+                  <span className="income-item-name">{income.name}</span>
+                  <span className="income-item-amount">
+                    {plan.currency} {income.amount.toFixed(2)}
+                  </span>
+                  <span className="income-item-frequency">{formatFrequency(plan.incomeAndAllocationFrequency)}</span>
+                </div>
+                <button
+                  type="button"
+                  className="income-item-remove"
+                  onClick={() => handleRemoveIncome(income.id)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-trash" width="16" height="16" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M4 7l16 0"></path>
+                    <path d="M10 11l0 6"></path>
+                    <path d="M14 11l0 6"></path>
+                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="income-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="income-name" className="form-label">Name</label>
+                <input
+                  type="text"
+                  id="income-name"
+                  name="name"
+                  value={newIncome.name}
+                  onChange={handleIncomeChange}
+                  placeholder="e.g., Salary"
+                  className={`form-input ${incomeErrors.name ? 'error' : ''}`}
+                />
+                {incomeErrors.name && (
+                  <div className="form-error">{incomeErrors.name}</div>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="income-amount" className="form-label">Amount</label>
+                <input
+                  type="number"
+                  id="income-amount"
+                  name="amount"
+                  value={newIncome.amount}
+                  onChange={handleIncomeChange}
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                  className={`form-input ${incomeErrors.amount ? 'error' : ''}`}
+                />
+                {incomeErrors.amount && (
+                  <div className="form-error">{incomeErrors.amount}</div>
+                )}
+              </div>
+            </div>
+            <button 
+              type="button" 
+              className="form-button form-button-primary"
+              onClick={handleAddIncome}
+            >
+              Add Income
+            </button>
           </div>
         </div>
 
