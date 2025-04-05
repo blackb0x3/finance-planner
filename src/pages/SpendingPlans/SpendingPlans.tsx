@@ -42,7 +42,7 @@ const SpendingPlans = () => {
           <h2>Something went wrong</h2>
           <p>{error}</p>
           <button 
-            className="button-primary"
+            className="spending-plan-button spending-plan-button-primary"
             onClick={() => window.location.reload()}
           >
             Try Again
@@ -55,8 +55,8 @@ const SpendingPlans = () => {
   return (
     <div className="spending-plans">
       <div className="spending-plans-header">
-        <h1>Your Spending Plans</h1>
-        <Link to="/spending-plans/new" className="button-primary">
+        <h1 className="spending-plans-title">Your Spending Plans</h1>
+        <Link to="/spending-plans/new" className="spending-plan-button spending-plan-button-primary">
           Create New Plan
         </Link>
       </div>
@@ -65,34 +65,34 @@ const SpendingPlans = () => {
         <div className="empty-state">
           <h2>No spending plans yet</h2>
           <p>Create your first spending plan to start managing your finances</p>
-          <Link to="/spending-plans/new" className="button-primary">
+          <Link to="/spending-plans/new" className="spending-plan-button spending-plan-button-primary">
             Create Your First Plan
           </Link>
         </div>
       ) : (
         <div className="spending-plans-grid">
           {spendingPlans.map((plan) => (
-            <div key={plan.id} className="plan-card">
-              <div className="plan-card-header">
-                <h3>{plan.name}</h3>
-                <span className="plan-currency">{plan.currency}</span>
+            <div key={plan.id} className="spending-plan-card">
+              <div className="spending-plan-card-header">
+                <h3 className="spending-plan-card-title">{plan.name}</h3>
+                <span className="spending-plan-card-currency">{plan.currency}</span>
               </div>
-              <p className="plan-description">{plan.description}</p>
-              <div className="plan-meta">
+              <p className="spending-plan-card-content">{plan.description}</p>
+              <div className="spending-plan-card-meta">
                 <span>Frequency: {plan.incomeAndAllocationFrequency}</span>
                 <span>Created: {new Date(plan.created).toLocaleDateString()}</span>
               </div>
-              <div className="plan-stats">
-                <div className="stat">
+              <div className="spending-plan-card-stats">
+                <div className="spending-plan-card-stat">
                   <label>Incomes</label>
                   <span>{plan.incomes.length}</span>
                 </div>
-                <div className="stat">
+                <div className="spending-plan-card-stat">
                   <label>Allocations</label>
                   <span>{plan.allocations.length}</span>
                 </div>
               </div>
-              <Link to={`/spending-plans/${plan.id}/edit`} className="button-secondary">
+              <Link to={`/spending-plans/${plan.id}/edit`} className="spending-plan-button spending-plan-button-secondary">
                 View / Edit
               </Link>
             </div>

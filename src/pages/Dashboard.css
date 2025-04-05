@@ -1,22 +1,24 @@
 .dashboard {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem;
 }
 
 .dashboard-header {
-  text-align: center;
   margin-bottom: 3rem;
+  text-align: center;
 }
 
 .dashboard-header h1 {
   font-size: 2.5rem;
-  color: #1f2937;
+  font-weight: 600;
+  color: var(--text-primary);
   margin-bottom: 1rem;
 }
 
 .dashboard-header p {
   font-size: 1.25rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .dashboard-actions {
@@ -26,25 +28,32 @@
 }
 
 .action-card {
-  background-color: white;
-  border-radius: 0.5rem;
+  display: block;
   padding: 2rem;
-  text-decoration: none;
-  color: inherit;
+  background-color: var(--surface);
+  border-radius: 0.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: all 0.2s;
+  text-align: center;
 }
 
 .action-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary);
 }
 
 .action-card h3 {
-  color: #2563eb;
-  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
 }
 
 .action-card p {
-  color: #6b7280;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
 } 

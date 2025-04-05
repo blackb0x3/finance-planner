@@ -60,9 +60,9 @@ const NewSpendingPlan = () => {
   return (
     <div className="new-spending-plan">
       <div className="new-spending-plan-header">
-        <h1>Create New Spending Plan</h1>
+        <h1 className="new-spending-plan-title">Create New Spending Plan</h1>
         <button 
-          className="button-secondary"
+          className="form-button form-button-secondary"
           onClick={() => navigate('/spending-plans')}
         >
           Cancel
@@ -70,14 +70,14 @@ const NewSpendingPlan = () => {
       </div>
 
       {error && (
-        <div className="error-message">
+        <div className="form-error">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="spending-plan-form">
+      <form onSubmit={handleSubmit} className="new-spending-plan-form">
         <div className="form-group">
-          <label htmlFor="name">Plan Name</label>
+          <label htmlFor="name" className="form-label">Plan Name</label>
           <input
             type="text"
             id="name"
@@ -87,15 +87,15 @@ const NewSpendingPlan = () => {
             placeholder="e.g., Monthly Budget 2024"
             required
             disabled={isSubmitting}
-            className={getFieldError('name') ? 'error' : ''}
+            className={`form-input ${getFieldError('name') ? 'error' : ''}`}
           />
           {getFieldError('name') && (
-            <div className="field-error">{getFieldError('name')}</div>
+            <div className="form-error">{getFieldError('name')}</div>
           )}
         </div>
 
         <div className="form-group">
-          <label htmlFor="description">Description</label>
+          <label htmlFor="description" className="form-label">Description</label>
           <textarea
             id="description"
             name="description"
@@ -104,49 +104,49 @@ const NewSpendingPlan = () => {
             placeholder="Describe your spending plan..."
             rows={3}
             disabled={isSubmitting}
-            className={getFieldError('description') ? 'error' : ''}
+            className={`form-textarea ${getFieldError('description') ? 'error' : ''}`}
           />
           {getFieldError('description') && (
-            <div className="field-error">{getFieldError('description')}</div>
+            <div className="form-error">{getFieldError('description')}</div>
           )}
         </div>
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="currency">Currency</label>
+            <label htmlFor="currency" className="form-label">Currency</label>
             <select
               id="currency"
               name="currency"
               value={formData.currency}
               onChange={handleChange}
               disabled={isSubmitting}
-              className={getFieldError('currency') ? 'error' : ''}
+              className={`form-select ${getFieldError('currency') ? 'error' : ''}`}
             >
               <option value="GBP">GBP (£)</option>
               <option value="EUR">EUR (€)</option>
               <option value="USD">USD ($)</option>
             </select>
             {getFieldError('currency') && (
-              <div className="field-error">{getFieldError('currency')}</div>
+              <div className="form-error">{getFieldError('currency')}</div>
             )}
           </div>
 
           <div className="form-group">
-            <label htmlFor="incomeAndAllocationFrequency">Frequency</label>
+            <label htmlFor="incomeAndAllocationFrequency" className="form-label">Frequency</label>
             <select
               id="incomeAndAllocationFrequency"
               name="incomeAndAllocationFrequency"
               value={formData.incomeAndAllocationFrequency}
               onChange={handleChange}
               disabled={isSubmitting}
-              className={getFieldError('incomeAndAllocationFrequency') ? 'error' : ''}
+              className={`form-select ${getFieldError('incomeAndAllocationFrequency') ? 'error' : ''}`}
             >
               <option value="monthly">Monthly</option>
               <option value="weekly">Weekly</option>
               <option value="daily">Daily</option>
             </select>
             {getFieldError('incomeAndAllocationFrequency') && (
-              <div className="field-error">{getFieldError('incomeAndAllocationFrequency')}</div>
+              <div className="form-error">{getFieldError('incomeAndAllocationFrequency')}</div>
             )}
           </div>
         </div>
@@ -154,7 +154,7 @@ const NewSpendingPlan = () => {
         <div className="form-actions">
           <button 
             type="submit" 
-            className="button-primary"
+            className="form-button form-button-primary"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Creating...' : 'Create Plan'}

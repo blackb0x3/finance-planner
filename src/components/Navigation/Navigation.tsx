@@ -11,6 +11,7 @@ const Navigation = () => {
         <Link to="/spending-plans">Spending Plans</Link>
         <Link to="/allocations">Allocations</Link>
         <Link to="/transactions">Transactions</Link>
+        <Link to="/settings">Settings</Link>
       </div>
     </nav>
   );
