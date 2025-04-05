@@ -1,8 +1,8 @@
-import { TransactionItem } from "../common/transactionItem";
+import { TransactionItem } from "../TransactionItem/transactionItem";
 
 export interface Budget {
-    startDate: Date;
-    endDate: Date;
-    incoming: TransactionItem[];
-    expenditures: TransactionItem[];
+  id: string;
+  start: Date;
+  end: Date;
+  transactions: TransactionItem[];
 }
