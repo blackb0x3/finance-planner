@@ -1,17 +1,17 @@
-.new-spending-plan {
+.edit-spending-plan {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
 }
 
-.new-spending-plan-header {
+.edit-spending-plan-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
 }
 
-.new-spending-plan-header h1 {
+.edit-spending-plan-header h1 {
   font-size: 2rem;
   color: #1f2937;
 }
@@ -72,6 +72,31 @@
   gap: 1.5rem;
 }
 
+.form-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-item label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.meta-item span {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
 .form-actions {
   margin-top: 2rem;
   display: flex;
@@ -120,6 +145,22 @@
   margin-bottom: 1.5rem;
 }
 
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 2rem;
+}
+
+.loading-state h2,
+.error-state h2 {
+  margin-bottom: 1rem;
+}
+
+.error-state p {
+  color: var(--error);
+  margin-bottom: 1.5rem;
+}
+
 /* Disabled state styles */
 button:disabled,
 input:disabled,
@@ -127,4 +168,4 @@ select:disabled,
 textarea:disabled {
   opacity: 0.7;
   cursor: not-allowed;
-}
+} 

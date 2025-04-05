@@ -1,53 +1,83 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { spendingPlanService } from '../../services/spendingPlanService';
 import { SpendingPlan } from '../../models/SpendingPlan/spendingPlan';
 import { validateSpendingPlan, ValidationError } from '../../utils/validation';
-import './NewSpendingPlan.css';
+import './EditSpendingPlan.css';
 
-const NewSpendingPlan = () => {
+const EditSpendingPlan = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [plan, setPlan] = useState<SpendingPlan | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    currency: 'GBP',
-    incomeAndAllocationFrequency: 'monthly' as const,
-  });
+
+  useEffect(() => {
+    const loadSpendingPlan = async () => {
+      if (!id) {
+        setError('No spending plan ID provided');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const loadedPlan = await spendingPlanService.getSpendingPlan(id);
+        if (!loadedPlan) {
+          setError('Spending plan not found');
+          setIsLoading(false);
+          return;
+        }
+        setPlan(loadedPlan);
+      } catch (err) {
+        setError('Failed to load spending plan');
+        console.error('Error loading spending plan:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSpendingPlan();
+  }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (!plan) return;
+
     // Validate the form
-    const validationResult = validateSpendingPlan(formData);
+    const validationResult = validateSpendingPlan(plan);
     setValidationErrors(validationResult.errors);
 
     if (!validationResult.isValid) {
       return;
     }
 
-    setIsSubmitting(true);
+    setIsSaving(true);
     setError(null);
 
     try {
-      await spendingPlanService.createSpendingPlan(formData);
+      await spendingPlanService.saveSpendingPlan({
+        ...plan,
+        lastUpdated: new Date(),
+      });
       navigate('/spending-plans');
     } catch (err) {
-      setError('Failed to create spending plan. Please try again.');
-      console.error('Error creating spending plan:', err);
+      setError('Failed to save spending plan');
+      console.error('Error saving spending plan:', err);
     } finally {
-      setIsSubmitting(false);
+      setIsSaving(false);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    if (!plan) return;
+
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setPlan(prev => prev ? {
       ...prev,
       [name]: value
-    }));
+    } : null);
 
     // Clear validation error for the field being changed
     setValidationErrors(prev => prev.filter(error => error.field !== name));
@@ -57,10 +87,37 @@ const NewSpendingPlan = () => {
     return validationErrors.find(error => error.field === fieldName)?.message;
   };
 
+  if (isLoading) {
+    return (
+      <div className="edit-spending-plan">
+        <div className="loading-state">
+          <h2>Loading spending plan...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !plan) {
+    return (
+      <div className="edit-spending-plan">
+        <div className="error-state">
+          <h2>Something went wrong</h2>
+          <p>{error}</p>
+          <button 
+            className="button-primary"
+            onClick={() => navigate('/spending-plans')}
+          >
+            Back to Plans
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="new-spending-plan">
-      <div className="new-spending-plan-header">
-        <h1>Create New Spending Plan</h1>
+    <div className="edit-spending-plan">
+      <div className="edit-spending-plan-header">
+        <h1>Edit Spending Plan</h1>
         <button 
           className="button-secondary"
           onClick={() => navigate('/spending-plans')}
@@ -82,11 +139,11 @@ const NewSpendingPlan = () => {
             type="text"
             id="name"
             name="name"
-            value={formData.name}
+            value={plan.name}
             onChange={handleChange}
             placeholder="e.g., Monthly Budget 2024"
             required
-            disabled={isSubmitting}
+            disabled={isSaving}
             className={getFieldError('name') ? 'error' : ''}
           />
           {getFieldError('name') && (
@@ -99,11 +156,11 @@ const NewSpendingPlan = () => {
           <textarea
             id="description"
             name="description"
-            value={formData.description}
+            value={plan.description}
             onChange={handleChange}
             placeholder="Describe your spending plan..."
             rows={3}
-            disabled={isSubmitting}
+            disabled={isSaving}
             className={getFieldError('description') ? 'error' : ''}
           />
           {getFieldError('description') && (
@@ -117,9 +174,9 @@ const NewSpendingPlan = () => {
             <select
               id="currency"
               name="currency"
-              value={formData.currency}
+              value={plan.currency}
               onChange={handleChange}
-              disabled={isSubmitting}
+              disabled={isSaving}
               className={getFieldError('currency') ? 'error' : ''}
             >
               <option value="GBP">GBP (£)</option>
@@ -136,9 +193,9 @@ const NewSpendingPlan = () => {
             <select
               id="incomeAndAllocationFrequency"
               name="incomeAndAllocationFrequency"
-              value={formData.incomeAndAllocationFrequency}
+              value={plan.incomeAndAllocationFrequency}
               onChange={handleChange}
-              disabled={isSubmitting}
+              disabled={isSaving}
               className={getFieldError('incomeAndAllocationFrequency') ? 'error' : ''}
             >
               <option value="monthly">Monthly</option>
@@ -151,13 +208,24 @@ const NewSpendingPlan = () => {
           </div>
         </div>
 
+        <div className="form-meta">
+          <div className="meta-item">
+            <label>Created</label>
+            <span>{new Date(plan.created).toLocaleDateString()}</span>
+          </div>
+          <div className="meta-item">
+            <label>Last Updated</label>
+            <span>{new Date(plan.lastUpdated).toLocaleDateString()}</span>
+          </div>
+        </div>
+
         <div className="form-actions">
           <button 
             type="submit" 
             className="button-primary"
-            disabled={isSubmitting}
+            disabled={isSaving}
           >
-            {isSubmitting ? 'Creating...' : 'Create Plan'}
+            {isSaving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>
@@ -165,4 +233,4 @@ const NewSpendingPlan = () => {
   );
 };
 
-export default NewSpendingPlan; 
+export default EditSpendingPlan; 

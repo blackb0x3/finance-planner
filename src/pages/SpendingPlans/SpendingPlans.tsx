@@ -92,8 +92,8 @@ const SpendingPlans = () => {
                   <span>{plan.allocations.length}</span>
                 </div>
               </div>
-              <Link to={`/spending-plans/${plan.id}`} className="button-secondary">
-                View Details
+              <Link to={`/spending-plans/${plan.id}/edit`} className="button-secondary">
+                View / Edit
               </Link>
             </div>
           ))}

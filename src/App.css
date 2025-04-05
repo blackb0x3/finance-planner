@@ -14,6 +14,18 @@
   color: #0f0f0f;
   background-color: #f6f6f6;
 
+  /* Colour scheme */
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --surface: #ffffff;
+  --background: #f3f4f6;
+  --border: #e5e7eb;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --error: #dc2626;
+  --error-light: #fee2e2;
+  --disabled: #9ca3af;
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
