@@ -24,6 +24,15 @@ const EditSpendingPlan = () => {
     amount: ''
   });
 
+  const [newAllocation, setNewAllocation] = useState({
+    name: '',
+    amount: ''
+  });
+  const [allocationErrors, setAllocationErrors] = useState({
+    name: '',
+    amount: ''
+  });
+
   const formatFrequency = (frequency: string): string => {
     return frequency.charAt(0).toUpperCase() + frequency.slice(1).toLowerCase();
   };
@@ -105,6 +114,14 @@ const EditSpendingPlan = () => {
     }));
   };
 
+  const handleAllocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewAllocation(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const validateIncome = () => {
     const errors = {
       name: '',
@@ -121,6 +138,25 @@ const EditSpendingPlan = () => {
     }
 
     setIncomeErrors(errors);
+    return !errors.name && !errors.amount;
+  };
+
+  const validateAllocation = () => {
+    const errors = {
+      name: '',
+      amount: ''
+    };
+
+    if (!newAllocation.name.trim()) {
+      errors.name = 'Name is required';
+    }
+
+    const amount = parseFloat(newAllocation.amount);
+    if (isNaN(amount) || amount <= 0) {
+      errors.amount = 'Amount must be greater than 0';
+    }
+
+    setAllocationErrors(errors);
     return !errors.name && !errors.amount;
   };
 
@@ -158,12 +194,59 @@ const EditSpendingPlan = () => {
     });
   };
 
+  const handleAddAllocation = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!plan) return;
+
+    if (!validateAllocation()) {
+      return;
+    }
+
+    const updatedPlan = {
+      ...plan,
+      allocations: [
+        ...plan.allocations,
+        {
+          id: Date.now().toString(),
+          name: newAllocation.name,
+          amount: parseFloat(newAllocation.amount),
+          budgets: [],
+          created: new Date(),
+          lastUpdated: new Date()
+        }
+      ],
+      lastUpdated: new Date()
+    };
+
+    setPlan(updatedPlan);
+    setNewAllocation({
+      name: '',
+      amount: ''
+    });
+    setAllocationErrors({
+      name: '',
+      amount: ''
+    });
+  };
+
   const handleRemoveIncome = (incomeId: string) => {
     if (!plan) return;
 
     const updatedPlan = {
       ...plan,
       incomes: plan.incomes.filter(income => income.id !== incomeId),
+      lastUpdated: new Date()
+    };
+
+    setPlan(updatedPlan);
+  };
+
+  const handleRemoveAllocation = (allocationId: string) => {
+    if (!plan) return;
+
+    const updatedPlan = {
+      ...plan,
+      allocations: plan.allocations.filter(allocation => allocation.id !== allocationId),
       lastUpdated: new Date()
     };
 
@@ -350,6 +433,86 @@ const EditSpendingPlan = () => {
               onClick={handleAddIncome}
             >
               Add Income
+            </button>
+          </div>
+        </div>
+
+        <div className="form-section">
+          <h2 className="form-section-title">Allocations</h2>
+          
+          <div className="allocation-list">
+            {plan.allocations.map(allocation => (
+              <div key={allocation.id} className="allocation-item">
+                <div className="allocation-item-details">
+                  <span className="allocation-item-name">{allocation.name}</span>
+                  <div className="allocation-item-meta">
+                    <div className="meta-chip">
+                      <span className="meta-chip-value">
+                        {getCurrencySymbol(plan.currency)}{allocation.amount.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="allocation-item-remove"
+                  onClick={() => handleRemoveAllocation(allocation.id)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-trash" width="16" height="16" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M4 7l16 0"></path>
+                    <path d="M10 11l0 6"></path>
+                    <path d="M14 11l0 6"></path>
+                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                  </svg>
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="allocation-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="allocation-name" className="form-label">Name</label>
+                <input
+                  type="text"
+                  id="allocation-name"
+                  name="name"
+                  value={newAllocation.name}
+                  onChange={handleAllocationChange}
+                  placeholder="e.g., Rent"
+                  className={`form-input ${allocationErrors.name ? 'error' : ''}`}
+                />
+                {allocationErrors.name && (
+                  <div className="form-error">{allocationErrors.name}</div>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="allocation-amount" className="form-label">Amount</label>
+                <input
+                  type="number"
+                  id="allocation-amount"
+                  name="amount"
+                  value={newAllocation.amount}
+                  onChange={handleAllocationChange}
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                  className={`form-input ${allocationErrors.amount ? 'error' : ''}`}
+                />
+                {allocationErrors.amount && (
+                  <div className="form-error">{allocationErrors.amount}</div>
+                )}
+              </div>
+            </div>
+            <button
+              type="button"
+              className="form-button form-button-primary"
+              onClick={handleAddAllocation}
+            >
+              Add Allocation
             </button>
           </div>
         </div>

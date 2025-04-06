@@ -11,5 +11,6 @@ export const getCurrencySymbol = (currency: string): string => {
     'INR': '₹',
     'NZD': 'NZ$'
   };
+
   return currencySymbols[currency] || currency;
 };
