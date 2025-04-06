@@ -17,7 +17,7 @@ export const formatDate = (date: Date): string => {
 
   const diffInHours = Math.floor(diffInMinutes / 60);
   if (diffInHours < 24) {
-    return formatUnitOfTime(diffInHours, 'minute');;
+    return formatUnitOfTime(diffInHours, 'hour');;
   }
 
   const diffInDays = Math.floor(diffInHours / 24);
