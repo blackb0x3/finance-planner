@@ -6,5 +6,6 @@ export interface Allocation {
   amount: number;
   created: Date;
   lastUpdated: Date;
+  requiresBudgets: boolean;
   budgets: Budget[];
 }

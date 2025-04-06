@@ -6,6 +6,8 @@ import { validateSpendingPlan, ValidationError } from '../../utils/validation';
 import './EditSpendingPlan.css';
 import { formatDate } from '../../utils/formatDate.helper';
 import { getCurrencySymbol } from '../../utils/getCurrencySymbol.helper';
+import { generateBudgets, shouldGenerateBudgets } from '../../utils/budget.helper';
+import { Allocation } from '../../models/SpendingPlan/allocation';
 
 const EditSpendingPlan = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,9 +28,21 @@ const EditSpendingPlan = () => {
 
   const [newAllocation, setNewAllocation] = useState({
     name: '',
-    amount: ''
+    amount: '',
+    requiresBudgets: true
   });
   const [allocationErrors, setAllocationErrors] = useState({
+    name: '',
+    amount: ''
+  });
+
+  const [selectedAllocation, setSelectedAllocation] = useState<Allocation | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [newTransaction, setNewTransaction] = useState({
+    name: '',
+    amount: ''
+  });
+  const [transactionErrors, setTransactionErrors] = useState({
     name: '',
     amount: ''
   });
@@ -52,7 +66,21 @@ const EditSpendingPlan = () => {
           setIsLoading(false);
           return;
         }
-        setPlan(loadedPlan);
+
+        // Check if we need to generate new budgets
+        if (shouldGenerateBudgets(loadedPlan)) {
+          const updatedPlan = {
+            ...loadedPlan,
+            allocations: loadedPlan.allocations.map(allocation => ({
+              ...allocation,
+              budgets: generateBudgets(loadedPlan)
+            })),
+            lastUpdated: new Date()
+          };
+          setPlan(updatedPlan);
+        } else {
+          setPlan(loadedPlan);
+        }
       } catch (err) {
         setError('Failed to load spending plan');
         console.error('Error loading spending plan:', err);
@@ -210,7 +238,8 @@ const EditSpendingPlan = () => {
           id: Date.now().toString(),
           name: newAllocation.name,
           amount: parseFloat(newAllocation.amount),
-          budgets: [],
+          requiresBudgets: newAllocation.requiresBudgets,
+          budgets: newAllocation.requiresBudgets ? generateBudgets(plan) : [],
           created: new Date(),
           lastUpdated: new Date()
         }
@@ -221,7 +250,8 @@ const EditSpendingPlan = () => {
     setPlan(updatedPlan);
     setNewAllocation({
       name: '',
-      amount: ''
+      amount: '',
+      requiresBudgets: true
     });
     setAllocationErrors({
       name: '',
@@ -255,6 +285,101 @@ const EditSpendingPlan = () => {
 
   const getFieldError = (fieldName: string): string | undefined => {
     return validationErrors.find(error => error.field === fieldName)?.message;
+  };
+
+  const handleAllocationClick = (allocation: Allocation) => {
+    setSelectedAllocation(allocation);
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedAllocation(null);
+    setNewTransaction({
+      name: '',
+      amount: ''
+    });
+    setTransactionErrors({
+      name: '',
+      amount: ''
+    });
+  };
+
+  const handleTransactionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewTransaction(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const validateTransaction = () => {
+    const errors = {
+      name: '',
+      amount: ''
+    };
+
+    if (!newTransaction.name.trim()) {
+      errors.name = 'Name is required';
+    }
+
+    const amount = parseFloat(newTransaction.amount);
+    if (isNaN(amount) || amount <= 0) {
+      errors.amount = 'Amount must be greater than 0';
+    }
+
+    setTransactionErrors(errors);
+    return !errors.name && !errors.amount;
+  };
+
+  const handleAddTransaction = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!plan || !selectedAllocation) return;
+
+    if (!validateTransaction()) {
+      return;
+    }
+
+    const updatedPlan = {
+      ...plan,
+      allocations: plan.allocations.map(allocation => {
+        if (allocation.id === selectedAllocation.id) {
+          return {
+            ...allocation,
+            budgets: allocation.budgets.map(budget => {
+              if (budget.id === getCurrentBudget(allocation.budgets)?.id) {
+                return {
+                  ...budget,
+                  transactions: [
+                    ...budget.transactions,
+                    {
+                      id: Date.now().toString(),
+                      name: newTransaction.name,
+                      amount: parseFloat(newTransaction.amount),
+                      created: new Date(),
+                      lastUpdated: new Date()
+                    }
+                  ]
+                };
+              }
+              return budget;
+            })
+          };
+        }
+        return allocation;
+      }),
+      lastUpdated: new Date()
+    };
+
+    setPlan(updatedPlan);
+    setNewTransaction({
+      name: '',
+      amount: ''
+    });
+    setTransactionErrors({
+      name: '',
+      amount: ''
+    });
   };
 
   if (isLoading) {
@@ -442,21 +567,27 @@ const EditSpendingPlan = () => {
           
           <div className="allocation-list">
             {plan.allocations.map(allocation => (
-              <div key={allocation.id} className="allocation-item">
+              <div key={allocation.id} className="allocation-item" onClick={() => handleAllocationClick(allocation)}>
                 <div className="allocation-item-details">
                   <span className="allocation-item-name">{allocation.name}</span>
                   <div className="allocation-item-meta">
                     <div className="meta-chip">
                       <span className="meta-chip-value">
-                        {getCurrencySymbol(plan.currency)}{allocation.amount.toFixed(2)}
+                        {getCurrencySymbol(plan.currency)} {allocation.amount.toFixed(2)} • Budgets? {allocation.requiresBudgets ? '✅' : '❌'}
                       </span>
+                      <div className="meta-chip-tooltip">
+                        {allocation.requiresBudgets ? 'With Budgets' : 'No Budgets'}
+                      </div>
                     </div>
                   </div>
                 </div>
                 <button
                   type="button"
                   className="allocation-item-remove"
-                  onClick={() => handleRemoveAllocation(allocation.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveAllocation(allocation.id);
+                  }}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-trash" width="16" height="16" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -507,6 +638,20 @@ const EditSpendingPlan = () => {
                 )}
               </div>
             </div>
+            <div className="form-group">
+              <label className="form-checkbox">
+                <input
+                  type="checkbox"
+                  name="requiresBudgets"
+                  checked={newAllocation.requiresBudgets}
+                  onChange={(e) => setNewAllocation(prev => ({
+                    ...prev,
+                    requiresBudgets: e.target.checked
+                  }))}
+                />
+                <span>Require budgets for this allocation</span>
+              </label>
+            </div>
             <button
               type="button"
               className="form-button form-button-primary"
@@ -527,6 +672,180 @@ const EditSpendingPlan = () => {
           </button>
         </div>
       </form>
+
+      {selectedAllocation && (
+        <div className={`modal-overlay ${isModalVisible ? 'visible' : ''}`}>
+          <div className="modal">
+            <div className="modal-header">
+              <h2 className="modal-title">{selectedAllocation.name}</h2>
+              <button className="modal-close" onClick={handleModalClose}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path d="M18 6l-12 12"></path>
+                  <path d="M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+            <div className="modal-content">
+              <div className="form-group">
+                <label htmlFor="allocation-name" className="form-label">Name</label>
+                <input
+                  type="text"
+                  id="allocation-name"
+                  name="name"
+                  value={selectedAllocation.name}
+                  onChange={(e) => {
+                    const updatedPlan = {
+                      ...plan!,
+                      allocations: plan!.allocations.map(allocation => {
+                        if (allocation.id === selectedAllocation.id) {
+                          return {
+                            ...allocation,
+                            name: e.target.value,
+                            lastUpdated: new Date()
+                          };
+                        }
+                        return allocation;
+                      }),
+                      lastUpdated: new Date()
+                    };
+                    setPlan(updatedPlan);
+                  }}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="allocation-amount" className="form-label">Amount</label>
+                <input
+                  type="number"
+                  id="allocation-amount"
+                  name="amount"
+                  value={selectedAllocation.amount}
+                  onChange={(e) => {
+                    const updatedPlan = {
+                      ...plan!,
+                      allocations: plan!.allocations.map(allocation => {
+                        if (allocation.id === selectedAllocation.id) {
+                          return {
+                            ...allocation,
+                            amount: parseFloat(e.target.value),
+                            lastUpdated: new Date()
+                          };
+                        }
+                        return allocation;
+                      }),
+                      lastUpdated: new Date()
+                    };
+                    setPlan(updatedPlan);
+                  }}
+                  min="0"
+                  step="0.01"
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-checkbox">
+                  <input
+                    type="checkbox"
+                    name="requiresBudgets"
+                    checked={selectedAllocation.requiresBudgets}
+                    onChange={(e) => {
+                      const updatedPlan = {
+                        ...plan!,
+                        allocations: plan!.allocations.map(allocation => {
+                          if (allocation.id === selectedAllocation.id) {
+                            return {
+                              ...allocation,
+                              requiresBudgets: e.target.checked,
+                              budgets: e.target.checked ? generateBudgets(plan!) : [],
+                              lastUpdated: new Date()
+                            };
+                          }
+                          return allocation;
+                        }),
+                        lastUpdated: new Date()
+                      };
+                      setPlan(updatedPlan);
+                    }}
+                  />
+                  <span>Require budgets for this allocation</span>
+                </label>
+              </div>
+
+              {selectedAllocation.requiresBudgets && (
+                <>
+                  <h3 className="form-section-title">Current Budget Transactions</h3>
+                  <div className="transaction-list">
+                    {getCurrentBudget(selectedAllocation.budgets)?.transactions.map(transaction => (
+                      <div key={transaction.id} className="transaction-item">
+                        <div className="transaction-item-details">
+                          <span className="transaction-item-name">{transaction.name}</span>
+                          <span className="transaction-item-date">{formatDate(transaction.created)}</span>
+                        </div>
+                        <span className="transaction-item-amount">
+                          {getCurrencySymbol(plan.currency)} {transaction.amount.toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <h3 className="form-section-title">Add Transaction</h3>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor="transaction-name" className="form-label">Name</label>
+                      <input
+                        type="text"
+                        id="transaction-name"
+                        name="name"
+                        value={newTransaction.name}
+                        onChange={handleTransactionChange}
+                        placeholder="e.g., Groceries"
+                        className={`form-input ${transactionErrors.name ? 'error' : ''}`}
+                      />
+                      {transactionErrors.name && (
+                        <div className="form-error">{transactionErrors.name}</div>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="transaction-amount" className="form-label">Amount</label>
+                      <input
+                        type="number"
+                        id="transaction-amount"
+                        name="amount"
+                        value={newTransaction.amount}
+                        onChange={handleTransactionChange}
+                        placeholder="0.00"
+                        min="0"
+                        step="0.01"
+                        className={`form-input ${transactionErrors.amount ? 'error' : ''}`}
+                      />
+                      {transactionErrors.amount && (
+                        <div className="form-error">{transactionErrors.amount}</div>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="form-button form-button-primary"
+                    onClick={handleAddTransaction}
+                  >
+                    Add Transaction
+                  </button>
+                </>
+              )}
+            </div>
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="form-button form-button-secondary"
+                onClick={handleModalClose}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

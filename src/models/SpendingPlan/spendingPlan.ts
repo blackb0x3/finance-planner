@@ -1,7 +1,7 @@
 import { Allocation } from "../Allocation/allocation";
 import { Income } from "../Income/income";
 
-type MonetaryFrequency = 'monthly' | 'weekly' | 'daily';
+export type MonetaryFrequency = 'monthly' | 'weekly' | 'daily';
 
 export interface SpendingPlan {
     id: string;
