@@ -210,11 +210,12 @@ textarea:disabled {
 
 .income-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 1rem;
-  background-color: var(--background);
-  border-radius: 0.375rem;
+  background-color: var(--surface);
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
   border: 1px solid var(--border);
 }
 
@@ -222,11 +223,17 @@ textarea:disabled {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex: 1;
 }
 
 .income-item-name {
   font-weight: 500;
   color: var(--text-primary);
+}
+
+.income-item-meta {
+  margin-left: auto;
+  margin-right: 1rem;
 }
 
 .income-item-amount {
@@ -245,20 +252,24 @@ textarea:disabled {
 .income-item-remove {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.375rem;
-  background-color: var(--error-light);
-  color: var(--error);
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: none;
   border: none;
+  color: var(--error);
   cursor: pointer;
-  transition: all 0.2s;
+  font-size: 0.875rem;
+  transition: color 0.2s ease;
 }
 
 .income-item-remove:hover {
-  background-color: var(--error);
-  color: white;
+  color: var(--error-hover);
+}
+
+.income-item-remove svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
 }
 
 .income-form {

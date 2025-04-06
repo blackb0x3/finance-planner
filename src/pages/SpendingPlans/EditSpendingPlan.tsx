@@ -5,6 +5,7 @@ import { SpendingPlan } from '../../models/SpendingPlan/spendingPlan';
 import { validateSpendingPlan, ValidationError } from '../../utils/validation';
 import './EditSpendingPlan.css';
 import { formatDate } from '../../utils/formatDate.helper';
+import { getCurrencySymbol } from '../../utils/getCurrencySymbol.helper';
 
 const EditSpendingPlan = () => {
   const { id } = useParams<{ id: string }>();
@@ -281,10 +282,13 @@ const EditSpendingPlan = () => {
               <div key={income.id} className="income-item">
                 <div className="income-item-details">
                   <span className="income-item-name">{income.name}</span>
-                  <span className="income-item-amount">
-                    {plan.currency} {income.amount.toFixed(2)}
-                  </span>
-                  <span className="income-item-frequency">{formatFrequency(plan.incomeAndAllocationFrequency)}</span>
+                  <div className="income-item-meta">
+                    <div className="meta-chip">
+                      <span className="meta-chip-value">
+                        {getCurrencySymbol(plan.currency)}{income.amount.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <button
                   type="button"
@@ -299,6 +303,7 @@ const EditSpendingPlan = () => {
                     <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
                     <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
                   </svg>
+                  Remove
                 </button>
               </div>
             ))}
